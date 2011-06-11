@@ -18,29 +18,33 @@ class Position
 	#because I don't know a better way to deal with a Position with Y<0
 	attr_reader :x, :y, :direction
 	def initialize(x=4, y=0, direction='north')
+		#this is necessary to enable sensemaking error checking in x=()
+		@x = x
+		@y = y
+		#we still do this to have error checking
 		self.x=x
 		self.y=y
 		@direction = Direction.new(direction)
 	end
 	def x=(newX)
 		puts "x= method called" if $DEBUG
-		@x = newX
-		if not (1..7).include?(newX) then
+		if not (1..7).include?(@x) then
 			puts "water raised" if $DEBUG
 			raise BridgeLeft.new("water")
 		end
+		@x = newX
 	end
 	def y=(newY)
-		@y = newY
-		if not (0..15).include?(newY) then
-			if newY > 15 then
+		if not (0..15).include?(@y) then
+			if @y > 15 then
 				puts "ship raised" if $DEBUG
 				raise BridgeLeft.new("ship")
-			elsif newY < 0 then
+			elsif @y < 0 then
 				puts "water raised" if $DEBUG
 				raise BridgeLeft.new("water")
 			end
 		end
+		@y = newY
 	end
 	def direction=(newD)
 		@direction.current=newD
