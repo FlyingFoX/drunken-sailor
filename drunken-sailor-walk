@@ -1,16 +1,8 @@
 #!/usr/bin/ruby
 require './direction.rb'
-#class Hash
-#	def assoc(key_to_find)
-#		if key?(key_to_find)
-#			[key_to_find, self[key_to_find]]
-#		else
-#			nil
-#		end
-#	end
-#end
 class BridgeLeft < StandardError
 	attr_writer :state, :message
+	attr_reader :state, :message
 	@@STATES = {"water" => "We reached	WATER.", "ship" => "We reached SHIP.", "bridge" => "We are still on the bridge."}
 	def initialize(state)
 		puts @@STATES if $DEBUG
@@ -32,19 +24,20 @@ class Position
 	end
 	def x=(newX)
 		puts "x= method called" if $DEBUG
-		if (1..7).include?(newX) then
-			@x=newX
-		else
+		@x = newX
+		if not (1..7).include?(newX) then
+			puts "water raised" if $DEBUG
 			raise BridgeLeft.new("water")
 		end
 	end
 	def y=(newY)
-		if (0..15).include?(newY) then
-			@y=newY
-		else
+		@y = newY
+		if not (0..15).include?(newY) then
 			if newY > 15 then
+				puts "ship raised" if $DEBUG
 				raise BridgeLeft.new("ship")
 			elsif newY < 0 then
+				puts "water raised" if $DEBUG
 				raise BridgeLeft.new("water")
 			end
 		end
@@ -56,17 +49,17 @@ class Position
 	def nextStep!(turnTo)
 		@direction.turn!(turnTo)
 		if turnTo === "stay" then
-			nil
+			#do nothing	
 		elsif ["forward", "left", "right"].include?(turnTo) then
 			case @direction.current
 			when "s", "south"
-				@x = @x - 1
+				self.y -= 1
 			when "e", "east"
-				@y = @y + 1
+				self.x += 1
 			when "n", "north"
-				@x = @x + 1
+				self.y += 1
 			when "w", "west"
-				@y = @y - 1
+				self.x -= 1
 			end#case
 		else
 			raise IndexError, "turnTo needs to be one of [\"forward\", \"left\", \"right\", \"stay\"] but is #{turnTo}"
@@ -84,7 +77,7 @@ class Journey
 	@@ship = 0
 	@@total = 0
 
-	attr_reader :waypoints, :current
+	attr_reader :waypoints, :current, :water, :ship, :total
 	#to initialize with the standard value pass nil for x and y
 	def initialize(x, y)
 		if x.nil? then x=4 end
@@ -107,7 +100,8 @@ class Journey
 	def run
 		begin
 			#run until we get an error
-			while true
+			while true do
+				puts @waypoints.last if $DEBUG
 				turnTo = ["left", "right", "forward", "stay"].sample
 				@current.nextStep!(turnTo)
 				@waypoints.push(@current.getPosition)
@@ -148,3 +142,7 @@ class Simulation
 	end
 end
 
+if __FILE__ == $0
+	sim = Simulation.new
+	sim.simulate(1)
+end
