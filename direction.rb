@@ -7,11 +7,12 @@ class Direction
 		self.current=direction
 	end
 	def current=(newC)
+		newC.downcase!
 		puts "current method called" if $DEBUG
-		if  @@directions.include?(newC.downcase!)
+		if  @@directions.include?(newC)
 			@current=newC[0]
 		else
-			raise IndexError, "#{newC} is not a valid direction. Must be one of #{@@directions}"
+			raise IndexError, "#{newC} is not a valid direction. Must be one of #{@@directions.to_s}"
 		end
 	end
 	def turn!(angle)

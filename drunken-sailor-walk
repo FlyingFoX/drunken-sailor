@@ -1,10 +1,20 @@
-#!/usr/bin/rubY
-require 'direction'
+#!/usr/bin/ruby
+require './direction.rb'
+#class Hash
+#	def assoc(key_to_find)
+#		if key?(key_to_find)
+#			[key_to_find, self[key_to_find]]
+#		else
+#			nil
+#		end
+#	end
+#end
 class BridgeLeft < StandardError
 	attr_writer :state, :message
-	@@STATES={"water" => "We reached	WATER.", "ship" => "We reached SHIP.", "bridge" => "We are still on the bridge."}
+	@@STATES = {"water" => "We reached	WATER.", "ship" => "We reached SHIP.", "bridge" => "We are still on the bridge."}
 	def initialize(state)
-		@state, @message = @@STATES.assoc(state)
+		puts @@STATES if $DEBUG
+		@state, @message = @@STATES.assoc("#{state}")
 	end
 end
 
@@ -15,25 +25,25 @@ class Position
 	#we assume that the bridge is surrounded by water on all 3 other sides,
 	#because I don't know a better way to deal with a Position with Y<0
 	attr_reader :x, :y, :direction
-	def initialize(x=0, y=4, direction='north')
+	def initialize(x=4, y=0, direction='north')
 		self.x=x
 		self.y=y
-		self.direction=direction
+		@direction = Direction.new(direction)
 	end
 	def x=(newX)
 		puts "x= method called" if $DEBUG
-		if (1..7).includes?(newX) then
+		if (1..7).include?(newX) then
 			@x=newX
 		else
 			raise BridgeLeft.new("water")
 		end
 	end
 	def y=(newY)
-		if (0..15).includes?(newY) then
+		if (0..15).include?(newY) then
 			@y=newY
 		else
 			if newY > 15 then
-				raise BridgeLeft.new("finish")
+				raise BridgeLeft.new("ship")
 			elsif newY < 0 then
 				raise BridgeLeft.new("water")
 			end
@@ -47,7 +57,7 @@ class Position
 		@direction.turn!(turnTo)
 		if turnTo === "stay" then
 			nil
-		else if ["forward", "left", "right"].includes?(turnTo) then
+		elsif ["forward", "left", "right"].include?(turnTo) then
 			case @direction.current
 			when "s", "south"
 				@x = @x - 1
@@ -77,8 +87,8 @@ class Journey
 	attr_reader :waypoints, :current
 	#to initialize with the standard value pass nil for x and y
 	def initialize(x, y)
-		if x.nil? then x=0 end
-		if y.nil? then y=4 end
+		if x.nil? then x=4 end
+		if y.nil? then y=0 end
 		@current = Position.new(x,y)
 		@waypoints = Array.new(1,@current.getPosition)
 	end
@@ -133,6 +143,8 @@ class Simulation
 	def summary
 		puts "-" * 10
 		puts "We have reached the Ship #{Journey.ship} times out of #{Journey.total} total tries."
-		puts "This is a success rate of #{Journey.ship/Journey.total*100}%."
+		percent = Journey.ship / Journey.total * 100
+		puts "This is a success rate of #{percent}%."
 	end
 end
+
