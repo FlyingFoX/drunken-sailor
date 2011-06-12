@@ -17,7 +17,7 @@ class Position
 	#we assume that the bridge is surrounded by water on all 3 other sides,
 	#because I don't know a better way to deal with a Position with Y<0
 	attr_reader :x, :y, :direction
-	def initialize(x=4, y=0, direction='north')
+	def initialize(x, y, direction)
 		#this is necessary to enable sensemaking error checking in x=()
 		@x = x
 		@y = y
@@ -81,12 +81,10 @@ class Journey
 	@@ship = 0
 	@@total = 0
 
-	attr_reader :waypoints, :current, :water, :ship, :total
+	attr_reader :waypoints, :current, :water, :ship, :total, :message
 	#to initialize with the standard value pass nil for x and y
-	def initialize(x, y)
-		if x.nil? then x=4 end
-		if y.nil? then y=0 end
-		@current = Position.new(x,y)
+	def initialize(x = 4, y = 0, direction = "north")
+		@current = Position.new(x, y, direction)
 		@waypoints = Array.new(1,@current.getPosition)
 	end
 	def waterReached
@@ -114,8 +112,10 @@ class Journey
 			case error.state
 			when "water"
 				waterReached
+				@message = error.message
 			when "ship"
 				shipReached
+				@message = error.message
 			else
 				raise IndexError, "#{error} can't be handled."
 			end
