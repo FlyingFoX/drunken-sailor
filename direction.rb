@@ -45,4 +45,8 @@ class Direction
 			end
 		end
 	end
+
+	def ==(direction)
+		self.current == direction.current
+	end
 end
