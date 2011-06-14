@@ -115,7 +115,7 @@ class Journey
 		#with a position outside the bridge and therefore need to 
 		#have @waypoints filled before we intialize @current
 		#
-		@waypoints = Array.new(1, Array.new(x, y, direction[0]))
+		@waypoints = Array.new(1, [x, y, direction[0]])
 		@hasEnded = false
 		begin
 			@current = Position.new(x, y, direction)
