@@ -4,7 +4,11 @@ class Direction
 		@current
 	end
 	def initialize(direction)
-		self.current=direction
+		begin
+			self.current=direction
+		rescue
+			raise
+		end
 	end
 	def current=(newC)
 		newC.downcase!
